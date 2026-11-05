@@ -23,7 +23,7 @@ Cada rodada fica salva em `eval/runs/` e `uv run python -m eval.compare` mostra 
 | Tem graviola? | "Não, a graviola está fora de estoque." | Só aceita "sem estoque", "indisponível", "acabou"... e não "fora de estoque". |
 | Qual o endereço da loja física? | "Não temos endereço de loja física cadastrado. Entre em contato com a pessoa responsável." | `refuse` exige o texto fixo exato. |
 
-**Decisão (2026-11-05):** o verificador foi mantido como está, para não ajustar o critério depois de ver o resultado. O score reportado é **94% (33/35)**, e as duas falhas acima são conhecidas e explicadas.
+**Decisão (2026-11-05):** o verificador foi mantido como está, para não ajustar o critério depois de ver o resultado. Naquela data o score era **94% (33/35)**, com as duas falhas acima conhecidas e explicadas (o score atual está mais abaixo).
 
 ## Limites
 - 35 perguntas e 3 rodadas por versão dão só uma estimativa: 1 pergunta vale ~3 pontos percentuais.
