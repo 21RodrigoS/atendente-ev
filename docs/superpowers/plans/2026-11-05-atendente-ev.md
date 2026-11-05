@@ -12,7 +12,7 @@
 
 ## Global Constraints
 
-- Custo zero: provedor padrão Groq `llama-3.3-70b-versatile` em `https://api.groq.com/openai/v1`; Gemini via `https://generativelanguage.googleapis.com/v1beta/openai/` trocando só variáveis de ambiente. Embeddings locais, sem cota.
+- Custo zero: provedor padrão Groq `openai/gpt-oss-120b` (o `llama-3.3-70b-versatile` saiu do Groq em 2026) em `https://api.groq.com/openai/v1`; Gemini via `https://generativelanguage.googleapis.com/v1beta/openai/` trocando só variáveis de ambiente. Embeddings locais, sem cota.
 - Preço, estoque e pedido NUNCA vêm de busca vetorial: só das ferramentas SQL.
 - Repositório público: sem custo/margem da E&V, sem telefone pessoal, sem clientes reais (dados de demo sintéticos), sem chave de API no Git (`.env` ignorado, `.env.example` versionado).
 - Sem afirmações de saúde/qualidade sobre as polpas.

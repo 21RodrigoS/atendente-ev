@@ -8,7 +8,7 @@ class Settings(BaseSettings):
 
     llm_base_url: str = "https://api.groq.com/openai/v1"
     llm_api_key: str = ""
-    llm_model: str = "llama-3.3-70b-versatile"
+    llm_model: str = "openai/gpt-oss-120b"
     db_url: str = "sqlite:///data/atendente.db"
     rate_limit_per_minute: int = 20
     max_message_chars: int = 1000

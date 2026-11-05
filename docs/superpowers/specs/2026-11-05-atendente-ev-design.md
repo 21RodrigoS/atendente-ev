@@ -44,7 +44,7 @@ Frase para a entrevista: "Construí um atendente com IA para o meu negócio de p
 | 3. Análise de conversas (dados) | Sentimento, painel | Menos ligado ao produto central |
 
 Escolha do modelo (decidida pelo Hugo, com minha recomendação):
-- **Geração:** Groq (Llama 3.3 70B), plano gratuito. Limites mudam e as fontes divergem: conferir em console.groq.com antes de depender.
+- **Geração:** Groq (`openai/gpt-oss-120b`; o Llama 3.3 70B não está mais disponível), plano gratuito. Limites mudam e as fontes divergem: conferir em console.groq.com antes de depender.
 - **Embeddings:** local (`multilingual-e5-small`), sem cota.
 - **Interface `LLMProvider`** com implementação Groq e Gemini, trocável por variável de ambiente. Testes usam um provedor falso, sem rede.
 - Descartado: Ollama local como padrão (exige máquina forte e a demo pública não funcionaria).

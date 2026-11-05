@@ -7,9 +7,11 @@ from app.providers.base import LLMUnavailable
 from app.providers.openai_compat import OpenAICompatProvider
 
 
-def _provider(handler):
+def _provider(handler, retries=0):
     client = httpx.Client(transport=httpx.MockTransport(handler))
-    return OpenAICompatProvider("https://x.test/v1", "k", "m", client=client)
+    return OpenAICompatProvider(
+        "https://x.test/v1", "k", "m", client=client, retries=retries, sleep=lambda s: None
+    )
 
 
 def _ok(message):
@@ -61,3 +63,21 @@ def test_sends_bearer_and_model():
     assert seen["auth"] == "Bearer k"
     assert seen["body"]["model"] == "m"
     assert seen["url"] == "https://x.test/v1/chat/completions"
+
+
+def test_retries_429_then_succeeds():
+    calls = []
+
+    def handler(request):
+        calls.append(1)
+        if len(calls) < 3:
+            return httpx.Response(429, headers={"retry-after": "1"})
+        return _ok({"content": "ok"})
+
+    assert _provider(handler, retries=3).chat([]).text == "ok"
+    assert len(calls) == 3
+
+
+def test_gives_up_after_retries():
+    with pytest.raises(LLMUnavailable):
+        _provider(lambda r: httpx.Response(429), retries=2).chat([])
