@@ -21,14 +21,14 @@ O que ele faz:
 • Quando não sabe, avisa e encaminha para uma pessoa.
 
 Como medi:
-• Avaliação automática com 35 perguntas (preço, clube, entrega, pedido, injeção de prompt, fora de escopo). Resultado: 97% (34/35), em 2 rodadas.
+• Avaliação automática com 39 perguntas (preço, clube, entrega, pedido, prazo, injeção de prompt, fora de escopo). Nas 35 primeiras: 97% (34/35), em 2 rodadas.
 • Duas rodadas iguais deram 94% e 97%. O modelo oscila, então passei a repetir e comparar regressões.
-• 73 testes automatizados e CI no GitHub Actions.
+• 76 testes automatizados e CI no GitHub Actions.
 
 O que deu errado e eu aprendi:
 • A cota diária do plano grátis acabou no meio dos testes e o servidor ficava esperando. Passei a falhar rápido com uma mensagem clara.
 • O bot insinuava uma loja física porque um texto meu estava ambíguo. Corrigi o documento, não a pergunta.
-• Ainda acho respostas inventadas em casos que a avaliação não cobre (um prazo de entrega, por exemplo), e vou adicioná-los às perguntas.
+• Numa conversa de 2 turnos o bot inventou um prazo de entrega que nenhum documento previa. A avaliação não pegava porque testava uma mensagem por vez. Adicionei perguntas de vários turnos e uma regra: sem ela, 2 de 4 execuções inventaram o prazo; com ela, 0 de 4 (amostra pequena).
 
 Stack: Python, FastAPI, SQL, REST, Git. Custo zero.
 
@@ -42,7 +42,7 @@ Estou buscando oportunidades de estágio em tecnologia. Se você trabalha com IA
 
 ## Versão curta (se preferir)
 
-Construí um atendente de WhatsApp com IA para o meu negócio de polpas. O preço vem do banco, não do modelo, para ele não inventar valores. Medi com 35 perguntas: 97% de acertos, 73 testes e CI. O que mais me ensinou foram os erros: cota esgotada, um texto ambíguo e um modelo que oscila entre rodadas. Detalhes no primeiro comentário.
+Construí um atendente de WhatsApp com IA para o meu negócio de polpas. O preço vem do banco, não do modelo, para ele não inventar valores. Medi com 35 perguntas: 97% de acertos, 76 testes e CI. O que mais me ensinou foram os erros: cota esgotada, um texto ambíguo e um modelo que oscila entre rodadas. Detalhes no primeiro comentário.
 
 #Python #IA #RAG #FastAPI
 

@@ -16,7 +16,7 @@ Preço calculado pelo banco (R$ 54,00), regra do clube vinda dos documentos, per
 - Calcula preço e registra pedido pelo **banco**, nunca pelo modelo.
 - Quando não sabe, encaminha para a pessoa responsável e registra a pergunta no painel.
 - Webhook compatível com o formato do WhatsApp Cloud API, simulador web e painel admin.
-- **Avaliação automática** com 35 perguntas (preço, clube, entrega, estoque, pedido, sem base, fora de escopo, injeção de prompt, sabor inexistente).
+- **Avaliação automática** com 39 perguntas (preço, clube, entrega, estoque, pedido, sem base, fora de escopo, injeção de prompt, sabor inexistente, prazo de entrega). Os 97% foram medidos nas 35 primeiras; veja [docs/eval-results.md](docs/eval-results.md).
 
 ## Como rodar
 

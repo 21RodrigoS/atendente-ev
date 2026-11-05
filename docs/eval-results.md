@@ -46,3 +46,13 @@ Motivo: na demo no simulador apareciam asteriscos literais (`**R$ 54,00**`) e fo
 
 ### Atualização sobre a rodada travada
 A causa foi encontrada depois: a **cota diária de tokens do plano grátis do Groq** (200.000 por dia por modelo) acabou. As rodadas de avaliação consomem tokens (as 7 rodadas do dia mais testes esgotaram a cota), e o cliente esperava a liberação em vez de falhar. Agora, se o provedor pedir uma espera maior que 30 s, a chamada falha na hora e o atendente responde com a mensagem de instabilidade. Planeje as rodadas de avaliação com a cota em mente: cada rodada de 35 perguntas usa uma parte relevante dela.
+
+## Mudança 3: nunca inventar prazo de entrega (2026-11-05)
+Motivo: na demo, após "Quero 2kg de manga" e "Confirmo", o bot respondeu que o pedido "será entregue em 15 dias". Nenhum documento diz isso.
+- A avaliação não pegava o caso: eram perguntas de um turno só. Três perguntas de prazo de um turno passaram **mesmo sem a regra**, então não reproduziam o defeito.
+- Acrescentei suporte a perguntas de vários turnos (`turns`) e a opção `--category`, mais 4 perguntas de prazo (3 de um turno, 1 de dois turnos). A avaliação agora tem 39 perguntas; os 97% acima foram medidos nas 35 primeiras.
+- Regra no prompt: nunca inventar prazo, dia ou horário; após o pedido, dizer que prazo e horário são combinados com a E&V.
+- **Comparação com e sem a regra** (fluxo de 2 turnos, modelo `gpt-oss-20b`, 4 execuções cada):
+  - sem a regra: **2 de 4 falharam** ("será entregue em 3 dias úteis", inventado);
+  - com a regra: **4 de 4 corretas** ("o prazo e horário de entrega serão combinados com a E&V").
+- Limites: amostra de 4 execuções por lado e um único modelo (o 20b, porque a cota diária do 120b estava esgotada). A suíte completa de 39 perguntas ainda **não foi rodada** com o 120b depois desta mudança.
