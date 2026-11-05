@@ -4,6 +4,12 @@ Atendente de WhatsApp com IA para a **E&V Polpas**, negócio real de revenda de 
 
 > Projeto pessoal de Hugo Rodrigo, feito para estudar IA conversacional aplicada a atendimento.
 
+## Demonstração
+
+![Demonstração do atendente no simulador de WhatsApp](docs/demo.gif)
+
+Preço calculado pelo banco (R$ 54,00), regra do clube vinda dos documentos, pergunta sem base encaminhada a uma pessoa e tentativa de injeção de prompt sem efeito. Gravada no simulador local com o `openai/gpt-oss-20b`; a avaliação de 97% foi feita com o `openai/gpt-oss-120b`.
+
 ## O que ele faz
 
 - Responde perguntas (clube, entrega, sabores, regras de pedido) citando o documento de onde veio a resposta.
