@@ -94,3 +94,15 @@ def test_does_not_wait_when_retry_after_is_long():
     with pytest.raises(LLMUnavailable):
         provider.chat([])
     assert waits == []  # espera de 82 s (cota diária) não vale a pena: falha rápido
+
+
+def test_malformed_tool_arguments_raise_unavailable_not_crash():
+    msg = {"content": None, "tool_calls": [{"id": "c", "function": {"name": "get_price", "arguments": "{nao e json"}}]}
+    with pytest.raises(LLMUnavailable):
+        _provider(lambda r: _ok(msg)).chat([])
+
+
+def test_tool_call_missing_fields_raise_unavailable():
+    msg = {"content": None, "tool_calls": [{"id": "c"}]}
+    with pytest.raises(LLMUnavailable):
+        _provider(lambda r: _ok(msg)).chat([])

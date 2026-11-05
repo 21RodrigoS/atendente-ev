@@ -1,3 +1,4 @@
+import secrets
 from collections.abc import Iterator
 from pathlib import Path
 
@@ -45,7 +46,9 @@ def create_app(settings: Settings | None = None, provider=None, embedder=None) -
             yield db
 
     def admin_only(x_admin_token: str | None = Header(default=None)) -> None:
-        if not settings.admin_token or x_admin_token != settings.admin_token:
+        if not settings.admin_token or not secrets.compare_digest(
+            (x_admin_token or "").encode(), settings.admin_token.encode()
+        ):
             raise HTTPException(status_code=401, detail="token inválido")
 
     def handle_message(db: Session, session_id: str, text: str):
@@ -95,7 +98,11 @@ def create_app(settings: Settings | None = None, provider=None, embedder=None) -
         token: str = Query("", alias="hub.verify_token"),
         challenge: str = Query("", alias="hub.challenge"),
     ):
-        if mode != "subscribe" or not settings.admin_token or token != settings.admin_token:
+        if (
+            mode != "subscribe"
+            or not settings.admin_token
+            or not secrets.compare_digest(token.encode(), settings.admin_token.encode())
+        ):
             raise HTTPException(status_code=403, detail="verificação falhou")
         return challenge
 

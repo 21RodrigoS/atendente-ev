@@ -121,3 +121,14 @@ def test_orders_endpoint_lists_created_orders():
     orders = client.get("/admin/orders", headers={"X-Admin-Token": TOKEN}).json()
     assert orders[0]["total_cents"] == 2800
     assert orders[0]["items"] == [{"flavor": "Manga", "kg": 2.0}]
+
+
+def test_admin_token_comparison_is_constant_time(monkeypatch):
+    import app.main as main_module
+
+    calls = []
+    real = main_module.secrets.compare_digest
+    monkeypatch.setattr(main_module.secrets, "compare_digest", lambda a, b: calls.append(1) or real(a, b))
+    client = make_client()
+    assert client.get("/admin/messages", headers={"X-Admin-Token": TOKEN}).status_code == 200
+    assert calls

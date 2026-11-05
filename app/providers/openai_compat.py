@@ -53,18 +53,18 @@ class OpenAICompatProvider:
             raise LLMUnavailable(f"status {resp.status_code}")
         if resp.status_code >= 400:
             raise LLMUnavailable(f"erro do provedor: status {resp.status_code}")
-        try:
+        try:  # resposta fora do formato (inclusive argumentos que não são JSON) vira falha tratada
             message = resp.json()["choices"][0]["message"]
-        except (KeyError, IndexError, ValueError) as exc:
+            calls = [
+                ToolCall(
+                    id=c["id"],
+                    name=c["function"]["name"],
+                    arguments=json.loads(c["function"].get("arguments") or "{}"),
+                )
+                for c in message.get("tool_calls") or []
+            ]
+        except (KeyError, IndexError, ValueError, TypeError) as exc:
             raise LLMUnavailable("resposta inesperada do provedor") from exc
-        calls = [
-            ToolCall(
-                id=c["id"],
-                name=c["function"]["name"],
-                arguments=json.loads(c["function"].get("arguments") or "{}"),
-            )
-            for c in message.get("tool_calls") or []
-        ]
         return LLMReply(text=message.get("content"), tool_calls=calls)
 
     @staticmethod
