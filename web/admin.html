@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Painel · Atendente E&V</title>
+<style>
+  :root { --bg:#f6f7f9; --card:#fff; --ink:#1b1f24; --muted:#667085; --line:#e4e7ec; --acc:#075e54; }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg:#0f1418; --card:#182027; --ink:#e6edf3; --muted:#8b98a5; --line:#2a343d; --acc:#25d366; }
+  }
+  * { box-sizing: border-box; }
+  body { margin:0; padding:16px; font-family: system-ui, sans-serif; background:var(--bg); color:var(--ink); }
+  main { max-width:900px; margin-inline:auto; }
+  h1 { font-size:1.25rem; margin:0 0 12px; }
+  .row { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:12px; }
+  input, button { padding:10px 12px; border-radius:8px; border:1px solid var(--line); font-size:.95rem;
+                  background:var(--card); color:var(--ink); }
+  button { cursor:pointer; }
+  button.on { background:var(--acc); color:#fff; border-color:var(--acc); }
+  table { width:100%; border-collapse:collapse; background:var(--card); border-radius:8px; overflow:hidden; }
+  th, td { text-align:left; padding:8px 10px; border-bottom:1px solid var(--line); font-size:.9rem;
+           vertical-align:top; }
+  th { color:var(--muted); font-weight:600; }
+  .scroll { overflow-x:auto; }
+  #status { color:var(--muted); font-size:.9rem; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Painel do atendente</h1>
+  <div class="row">
+    <input id="token" type="password" placeholder="Token de admin" autocomplete="off">
+    <button id="load">Carregar</button>
+    <span id="status"></span>
+  </div>
+  <div class="row" id="tabs">
+    <button data-tab="messages" class="on">Conversas</button>
+    <button data-tab="orders">Pedidos</button>
+    <button data-tab="unanswered">Sem resposta</button>
+  </div>
+  <div class="scroll"><table id="table"></table></div>
+</main>
+<script>
+  // O token vai no cabeçalho X-Admin-Token e fica só na memória desta página.
+  const table = document.getElementById("table");
+  const statusEl = document.getElementById("status");
+  let tab = "messages";
+
+  const columns = {
+    messages: [["session_id", "Sessão"], ["role", "Quem"], ["content", "Mensagem"], ["sources", "Fontes"]],
+    unanswered: [["session_id", "Sessão"], ["content", "Pergunta sem base"], ["created_at", "Quando"]],
+    orders: [["id", "#"], ["session_id", "Sessão"], ["items", "Itens"], ["total_cents", "Total"]],
+  };
+
+  function cell(key, row) {
+    if (key === "items") return row.items.map(i => `${i.flavor} ${i.kg} kg`).join(", ");
+    if (key === "total_cents") return "R$ " + (row.total_cents / 100).toFixed(2).replace(".", ",");
+    return row[key] ?? "";
+  }
+
+  async function load() {
+    const token = document.getElementById("token").value;
+    statusEl.textContent = "Carregando...";
+    const resp = await fetch("/admin/" + tab, { headers: { "X-Admin-Token": token } });
+    if (resp.status === 401) { statusEl.textContent = "Token inválido."; table.replaceChildren(); return; }
+    const rows = await resp.json();
+    statusEl.textContent = rows.length + " registro(s)";
+    const head = document.createElement("tr");
+    columns[tab].forEach(([, label]) => { const th = document.createElement("th"); th.textContent = label; head.appendChild(th); });
+    const body = rows.map(row => {
+      const tr = document.createElement("tr");
+      columns[tab].forEach(([key]) => { const td = document.createElement("td"); td.textContent = cell(key, row); tr.appendChild(td); });
+      return tr;
+    });
+    table.replaceChildren(head, ...body);
+  }
+
+  document.getElementById("load").addEventListener("click", load);
+  document.querySelectorAll("#tabs button").forEach(b => b.addEventListener("click", () => {
+    document.querySelectorAll("#tabs button").forEach(x => x.classList.remove("on"));
+    b.classList.add("on");
+    tab = b.dataset.tab;
+    load();
+  }));
+</script>
+</body>
+</html>

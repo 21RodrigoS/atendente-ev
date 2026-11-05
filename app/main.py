@@ -2,7 +2,7 @@ from collections.abc import Iterator
 from pathlib import Path
 
 from fastapi import Depends, FastAPI, Header, HTTPException, Query, Request
-from fastapi.responses import PlainTextResponse
+from fastapi.responses import FileResponse, PlainTextResponse
 from pydantic import BaseModel, Field
 from sqlalchemy import select
 from sqlalchemy.orm import Session, sessionmaker
@@ -67,6 +67,14 @@ def create_app(settings: Settings | None = None, provider=None, embedder=None) -
     @app.get("/health")
     def health():
         return {"status": "ok"}
+
+    @app.get("/", include_in_schema=False)
+    def simulator():
+        return FileResponse(ROOT / "web" / "index.html")
+
+    @app.get("/admin", include_in_schema=False)
+    def admin_page():
+        return FileResponse(ROOT / "web" / "admin.html")
 
     @app.post("/chat")
     def chat(body: ChatIn, request: Request, db: Session = Depends(get_db)):
