@@ -1,0 +1,10 @@
+[
+  {"slug": "acerola", "name": "Acerola", "price_cents": 1400, "in_stock": true},
+  {"slug": "caju", "name": "Caju", "price_cents": 1400, "in_stock": true},
+  {"slug": "goiaba", "name": "Goiaba", "price_cents": 1400, "in_stock": true},
+  {"slug": "manga", "name": "Manga", "price_cents": 1400, "in_stock": true},
+  {"slug": "caja", "name": "Cajá", "price_cents": 1400, "in_stock": true},
+  {"slug": "graviola", "name": "Graviola", "price_cents": 1400, "in_stock": false},
+  {"slug": "maracuja", "name": "Maracujá", "price_cents": 2000, "in_stock": true},
+  {"slug": "morango", "name": "Morango", "price_cents": 2000, "in_stock": true}
+]
