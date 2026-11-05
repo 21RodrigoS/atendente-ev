@@ -49,6 +49,7 @@ def test_tool_call_round_trip(db, index):
     result = agent.answer(db, "s1", "quanto custa 2kg de manga?")
     assert result.text.startswith("Dois kg")
     assert result.grounded is True
+    assert result.sources == ["banco de dados"]  # valor veio da ferramenta, não dos documentos
     second = provider.calls[1]["messages"]
     tool_msg = second[-1]
     assert tool_msg["role"] == "tool" and tool_msg["tool_call_id"] == "c1"
@@ -105,3 +106,16 @@ def test_history_is_included(db, index):
     agent.answer(db, "s9", "2 kg")
     roles = [m["role"] for m in provider.calls[0]["messages"]]
     assert roles == ["system", "user", "assistant", "user"]
+
+
+def test_sources_keep_only_hits_close_to_the_best(db, index):
+    agent, _ = _agent([LLMReply(text="ok")], index)
+    result = agent.answer(db, "s1", "qual o desconto do clube quinzenal?")
+    assert result.sources[0] == "clube.md"
+    assert len(result.sources) <= 2
+
+
+def test_system_prompt_forbids_markdown(db, index):
+    agent, provider = _agent([LLMReply(text="ok")], index)
+    agent.answer(db, "s1", "oi")
+    assert "markdown" in provider.calls[0]["messages"][0]["content"].lower()
