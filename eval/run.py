@@ -80,6 +80,7 @@ def main() -> int:
     from app.rag.embedder import FastEmbedder
     from app.rag.index import load_index
 
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")  # console do Windows é cp1252
     parser = argparse.ArgumentParser()
     parser.add_argument("--min", type=float, default=0.0, help="score mínimo (0 a 1)")
     parser.add_argument("--repeat", type=int, default=1, help="quantas vezes rodar (mede a variação)")

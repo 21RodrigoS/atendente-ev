@@ -28,3 +28,18 @@ Cada rodada fica salva em `eval/runs/` e `uv run python -m eval.compare` mostra 
 ## Limites
 - 35 perguntas e 3 rodadas por versão dão só uma estimativa: 1 pergunta vale ~3 pontos percentuais.
 - Os critérios de acerto são por palavras-chave, não por julgamento semântico.
+
+## Mudança 2: agente sem Markdown, fontes honestas e margem de relevância (2026-11-05)
+Motivo: na demo no simulador apareciam asteriscos literais (`**R$ 54,00**`) e fontes enganosas (um preço calculado pelo banco citava `pedidos.md`, `faq.md` e `sobre.md`).
+- Prompt pede texto puro, sem Markdown.
+- Quando a resposta usa ferramenta, a fonte mostrada é "banco de dados".
+- Só entram no contexto os trechos até 0,15 de pontuação abaixo do melhor (e no máximo 2 fontes mostradas).
+- 2 rodadas: **34/35 e 34/35 (97%)**.
+- `eval.compare` contra a rodada anterior: **0 regressões, 1 melhoria** ("Qual o endereço da loja física?" passou a recusar). Menos contexto irrelevante fez o modelo encaminhar em vez de responder.
+- Única falha restante: "Tem graviola?" (falha conhecida do verificador, mantido sem alteração conforme a decisão acima).
+
+**Score atual reportado: 97% (34/35)**, com a ressalva do verificador.
+
+## Incidentes durante a avaliação
+- Uma rodada foi perdida por um erro de impressão de caractere especial no console do Windows. Corrigido forçando UTF-8 na saída.
+- Uma terceira rodada ficou travada por mais de 8 minutos e foi encerrada manualmente. A causa não foi investigada. O plano grátis tem limite de 8.000 tokens por minuto e 1.000 requisições por dia, e o script ainda não tem um tempo máximo por rodada.
