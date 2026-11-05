@@ -6,12 +6,15 @@ Uso: uv run python -m eval.run [--min 0.85]   (usa o provedor configurado no .en
 import argparse
 import subprocess
 import sys
+from datetime import datetime
 from pathlib import Path
 
 import yaml
 
 from app.agent import FALLBACK_TEXT, Agent, AgentResult
 from app.tools import normalize
+from eval.compare import format_diff
+from eval.history import RUNS_DIR, list_runs, load_run, save_run
 
 QUESTIONS = Path(__file__).parent / "questions.yaml"
 
@@ -89,15 +92,32 @@ def main() -> int:
     init_db(engine)
     questions = yaml.safe_load(QUESTIONS.read_text(encoding="utf-8"))
     agent = Agent(build_provider(get_settings()), load_index(root / "knowledge", FastEmbedder()))
-    with Session(engine) as db:
-        seed_products(db, root / "data" / "products.json")
-        out = run_eval(agent, db, questions)
-
-    value = out["passed"] / out["total"]
-    print(f"Score: {out['passed']}/{out['total']} = {value:.0%}")
-    for f in out["failures"]:
-        print(f"- [{f['expect']}] {f['question']}\n    -> {f['got']}")
-    return 0 if value >= args.min else 1
+    settings = get_settings()
+    values = []
+    for n in range(args.repeat):
+        previous = list_runs()
+        with Session(engine) as db:
+            seed_products(db, root / "data" / "products.json")
+            out = run_eval(agent, db, questions)
+        value = out["passed"] / out["total"]
+        values.append(value)
+        print(f"Rodada {n + 1}/{args.repeat}: {out['passed']}/{out['total']} = {value:.0%}")
+        for f in out["failures"]:
+            print(f"- [{f['expect']}] {f['question']}\n    -> {f['got']}")
+        if not args.no_save:
+            meta = {
+                "label": args.label,
+                "model": settings.llm_model,
+                "commit": _git_commit(root),
+                "date": datetime.now().isoformat(timespec="seconds"),
+            }
+            path = save_run({"meta": meta, **out}, RUNS_DIR)
+            print(f"Salvo em {path.name}")
+            if previous:
+                print(format_diff(load_run(previous[-1]), load_run(path)))
+    if len(values) > 1:
+        print(f"Variação entre rodadas: min {min(values):.0%}, máx {max(values):.0%}")
+    return 0 if min(values) >= args.min else 1
 
 
 if __name__ == "__main__":
