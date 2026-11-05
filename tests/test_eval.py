@@ -3,11 +3,11 @@ from pathlib import Path
 import yaml
 
 from app.agent import FALLBACK_TEXT, AgentResult
-from eval.run import check, run_eval, score
+from eval.run import check, filter_questions, run_eval, score
 
 CATEGORIES = {
     "preco", "clube", "entrega", "estoque", "pedido", "sem_base",
-    "fora_escopo", "injecao", "sabor_inexistente", "saudacao",
+    "fora_escopo", "injecao", "sabor_inexistente", "saudacao", "prazo",
 }
 
 
@@ -57,3 +57,10 @@ def test_yaml_has_at_least_30_items_with_all_categories():
     assert len(items) >= 30
     assert {i["category"] for i in items} == CATEGORIES
     assert all(i["expect"] in {"answer", "refuse", "any"} for i in items)
+
+
+def test_filter_questions_by_category():
+    qs = [{"category": "prazo", "question": "a"}, {"category": "preco", "question": "b"}]
+    assert filter_questions(qs, None) == qs
+    assert filter_questions(qs, "prazo") == [qs[0]]
+    assert filter_questions(qs, "inexistente") == []

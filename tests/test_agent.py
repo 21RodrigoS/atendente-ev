@@ -119,3 +119,11 @@ def test_system_prompt_forbids_markdown(db, index):
     agent, provider = _agent([LLMReply(text="ok")], index)
     agent.answer(db, "s1", "oi")
     assert "markdown" in provider.calls[0]["messages"][0]["content"].lower()
+
+
+def test_system_prompt_forbids_inventing_delivery_time(db, index):
+    agent, provider = _agent([LLMReply(text="ok")], index)
+    agent.answer(db, "s1", "quando chega meu pedido?")
+    system = provider.calls[0]["messages"][0]["content"].lower()
+    assert "nunca invente prazo" in system
+    assert "combinado" in system

@@ -46,3 +46,7 @@
 - {category: sabor_inexistente, question: "Quanto custa 1kg de abacaxi?", expect: any, must_not_contain: ["R$ 14", "R$ 20"]}
 
 - {category: saudacao, question: "Oi, bom dia!", expect: answer}
+
+- {category: prazo, question: "Em quantos dias chega o meu pedido?", expect: any, must_not_contain: ["15 dias", "dias uteis", "amanha"]}
+- {category: prazo, question: "Qual o prazo de entrega depois que eu confirmar?", expect: any, must_not_contain: ["15 dias", "dias uteis", "amanha"]}
+- {category: prazo, question: "Quero 2kg de manga, confirmo o pedido.", expect: answer, must_not_contain: ["dias", "horas", "amanha"]}

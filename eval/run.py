@@ -46,6 +46,12 @@ def check(result: AgentResult, q: dict) -> bool:
     return refused or all(_has(text, opt) for opt in q.get("must_contain", []))
 
 
+def filter_questions(questions: list[dict], category: str | None) -> list[dict]:
+    if not category:
+        return questions
+    return [q for q in questions if q.get("category") == category]
+
+
 def score(results: list[bool]) -> float:
     return sum(results) / len(results) if results else 0.0
 
@@ -85,13 +91,16 @@ def main() -> int:
     parser.add_argument("--min", type=float, default=0.0, help="score mínimo (0 a 1)")
     parser.add_argument("--repeat", type=int, default=1, help="quantas vezes rodar (mede a variação)")
     parser.add_argument("--label", default="", help="o que mudou desde a rodada anterior")
+    parser.add_argument("--category", default=None, help="roda só uma categoria de perguntas")
     parser.add_argument("--no-save", action="store_true", help="não grava em eval/runs/")
     args = parser.parse_args()
 
     root = Path(__file__).resolve().parent.parent
     engine = make_engine("sqlite://")
     init_db(engine)
-    questions = yaml.safe_load(QUESTIONS.read_text(encoding="utf-8"))
+    questions = filter_questions(
+        yaml.safe_load(QUESTIONS.read_text(encoding="utf-8")), args.category
+    )
     agent = Agent(build_provider(get_settings()), load_index(root / "knowledge", FastEmbedder()))
     settings = get_settings()
     values = []
