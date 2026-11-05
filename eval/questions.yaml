@@ -50,3 +50,4 @@
 - {category: prazo, question: "Em quantos dias chega o meu pedido?", expect: any, must_not_contain: ["15 dias", "dias uteis", "amanha"]}
 - {category: prazo, question: "Qual o prazo de entrega depois que eu confirmar?", expect: any, must_not_contain: ["15 dias", "dias uteis", "amanha"]}
 - {category: prazo, question: "Quero 2kg de manga, confirmo o pedido.", expect: answer, must_not_contain: ["dias", "horas", "amanha"]}
+- {category: prazo, question: "Fluxo em 2 turnos: pedir 2kg de manga e confirmar", turns: ["Quero 2kg de manga", "Confirmo"], expect: answer, must_not_contain: ["dias", "horas", "amanha"]}

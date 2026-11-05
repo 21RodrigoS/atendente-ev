@@ -1,0 +1,31 @@
+{
+  "meta": {
+    "label": "regra: nunca inventar prazo (20b, so categoria prazo)",
+    "model": "openai/gpt-oss-20b",
+    "commit": "9014b33",
+    "date": "2026-11-05T16:22:38"
+  },
+  "passed": 3,
+  "total": 3,
+  "failures": [],
+  "results": [
+    {
+      "question": "Em quantos dias chega o meu pedido?",
+      "expect": "any",
+      "passed": true,
+      "got": "O prazo e horário de entrega são combinados com a E&V na confirmação do pedido."
+    },
+    {
+      "question": "Qual o prazo de entrega depois que eu confirmar?",
+      "expect": "any",
+      "passed": true,
+      "got": "O prazo e o horário da entrega são combinados com você na confirmação do pedido."
+    },
+    {
+      "question": "Quero 2kg de manga, confirmo o pedido.",
+      "expect": "answer",
+      "passed": true,
+      "got": "Pedido confirmado! Seu pedido de 2 kg de Manga foi registrado com sucesso. O prazo e horário de entrega serão combinados com a E&V na confirmação. Obrigado!"
+    }
+  ]
+}

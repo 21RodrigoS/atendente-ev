@@ -56,10 +56,26 @@ def score(results: list[bool]) -> float:
     return sum(results) / len(results) if results else 0.0
 
 
+def _ask(agent: Agent, db, session_id: str, q: dict) -> AgentResult:
+    """Pergunta de um turno ou de vários (`turns`); só a última resposta é avaliada."""
+    result = None
+    for text in q.get("turns") or [q["question"]]:
+        result = agent.answer(db, session_id, text)
+        if db is not None:  # guarda o histórico para o próximo turno enxergar
+            from app.db import Message
+
+            db.add(Message(session_id=session_id, role="user", content=text, grounded=result.grounded))
+            db.add(
+                Message(session_id=session_id, role="assistant", content=result.text, grounded=result.grounded)
+            )
+            db.commit()
+    return result
+
+
 def run_eval(agent: Agent, db, questions: list[dict]) -> dict:
     results = []
     for i, q in enumerate(questions):
-        result = agent.answer(db, f"eval-{i}", q["question"])
+        result = _ask(agent, db, f"eval-{i}", q)
         results.append(
             {
                 "question": q["question"],

@@ -64,3 +64,32 @@ def test_filter_questions_by_category():
     assert filter_questions(qs, None) == qs
     assert filter_questions(qs, "prazo") == [qs[0]]
     assert filter_questions(qs, "inexistente") == []
+
+
+def test_multi_turn_question_keeps_history_and_checks_last_answer():
+    from sqlalchemy.orm import Session
+
+    from app.db import init_db, make_engine
+
+    seen = []
+
+    class Stub:
+        def answer(self, db, session_id, message):
+            from sqlalchemy import select
+
+            from app.db import Message
+
+            history = [m.content for m in db.scalars(select(Message).where(Message.session_id == session_id))]
+            seen.append((session_id, message, history))
+            return AgentResult(f"resposta a {message}", grounded=True)
+
+    engine = make_engine("sqlite://")
+    init_db(engine)
+    q = {"question": "fluxo", "turns": ["Quero 2kg", "Confirmo"], "expect": "answer", "must_contain": ["confirmo"]}
+    with Session(engine) as db:
+        out = run_eval(Stub(), db, [q])
+    assert out["passed"] == 1
+    assert [m for _, m, _ in seen] == ["Quero 2kg", "Confirmo"]
+    assert seen[0][0] == seen[1][0]  # mesma sessão nos dois turnos
+    assert seen[1][2] == ["Quero 2kg", "resposta a Quero 2kg"]  # o 2º turno enxerga o histórico
+    assert out["results"][0]["got"] == "resposta a Confirmo"
