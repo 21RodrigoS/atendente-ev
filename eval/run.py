@@ -4,6 +4,7 @@ Uso: uv run python -m eval.run [--min 0.85]   (usa o provedor configurado no .en
 """
 
 import argparse
+import subprocess
 import sys
 from pathlib import Path
 
@@ -13,6 +14,16 @@ from app.agent import FALLBACK_TEXT, Agent, AgentResult
 from app.tools import normalize
 
 QUESTIONS = Path(__file__).parent / "questions.yaml"
+
+
+def _git_commit(root: Path) -> str:
+    try:
+        out = subprocess.run(
+            ["git", "rev-parse", "--short", "HEAD"], cwd=root, capture_output=True, text=True, check=False
+        )
+        return out.stdout.strip() or "desconhecido"
+    except OSError:
+        return "desconhecido"
 
 
 def _has(text: str, option: str) -> bool:
@@ -37,14 +48,24 @@ def score(results: list[bool]) -> float:
 
 
 def run_eval(agent: Agent, db, questions: list[dict]) -> dict:
-    failures, passed = [], 0
+    results = []
     for i, q in enumerate(questions):
         result = agent.answer(db, f"eval-{i}", q["question"])
-        if check(result, q):
-            passed += 1
-        else:
-            failures.append({"question": q["question"], "expect": q["expect"], "got": result.text})
-    return {"passed": passed, "total": len(questions), "failures": failures}
+        results.append(
+            {
+                "question": q["question"],
+                "expect": q["expect"],
+                "passed": check(result, q),
+                "got": result.text,
+            }
+        )
+    failures = [r for r in results if not r["passed"]]
+    return {
+        "passed": len(results) - len(failures),
+        "total": len(results),
+        "failures": failures,
+        "results": results,
+    }
 
 
 def main() -> int:
@@ -58,6 +79,9 @@ def main() -> int:
 
     parser = argparse.ArgumentParser()
     parser.add_argument("--min", type=float, default=0.0, help="score mínimo (0 a 1)")
+    parser.add_argument("--repeat", type=int, default=1, help="quantas vezes rodar (mede a variação)")
+    parser.add_argument("--label", default="", help="o que mudou desde a rodada anterior")
+    parser.add_argument("--no-save", action="store_true", help="não grava em eval/runs/")
     args = parser.parse_args()
 
     root = Path(__file__).resolve().parent.parent
