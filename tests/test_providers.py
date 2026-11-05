@@ -81,3 +81,16 @@ def test_retries_429_then_succeeds():
 def test_gives_up_after_retries():
     with pytest.raises(LLMUnavailable):
         _provider(lambda r: httpx.Response(429), retries=2).chat([])
+
+
+def test_does_not_wait_when_retry_after_is_long():
+    waits = []
+    client = httpx.Client(
+        transport=httpx.MockTransport(lambda r: httpx.Response(429, headers={"retry-after": "82"}))
+    )
+    provider = OpenAICompatProvider(
+        "https://x.test/v1", "k", "m", client=client, retries=3, sleep=waits.append
+    )
+    with pytest.raises(LLMUnavailable):
+        provider.chat([])
+    assert waits == []  # espera de 82 s (cota diária) não vale a pena: falha rápido

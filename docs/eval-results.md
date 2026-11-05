@@ -43,3 +43,6 @@ Motivo: na demo no simulador apareciam asteriscos literais (`**R$ 54,00**`) e fo
 ## Incidentes durante a avaliação
 - Uma rodada foi perdida por um erro de impressão de caractere especial no console do Windows. Corrigido forçando UTF-8 na saída.
 - Uma terceira rodada ficou travada por mais de 8 minutos e foi encerrada manualmente. A causa não foi investigada. O plano grátis tem limite de 8.000 tokens por minuto e 1.000 requisições por dia, e o script ainda não tem um tempo máximo por rodada.
+
+### Atualização sobre a rodada travada
+A causa foi encontrada depois: a **cota diária de tokens do plano grátis do Groq** (200.000 por dia por modelo) acabou. As rodadas de avaliação consomem tokens (as 7 rodadas do dia mais testes esgotaram a cota), e o cliente esperava a liberação em vez de falhar. Agora, se o provedor pedir uma espera maior que 30 s, a chamada falha na hora e o atendente responde com a mensagem de instabilidade. Planeje as rodadas de avaliação com a cota em mente: cada rodada de 35 perguntas usa uma parte relevante dela.

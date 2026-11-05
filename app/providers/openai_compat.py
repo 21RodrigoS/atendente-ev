@@ -5,6 +5,8 @@ import httpx
 
 from app.providers.base import LLMReply, LLMUnavailable, ToolCall
 
+MAX_WAIT_SECONDS = 30.0
+
 
 class OpenAICompatProvider:
     """Fala o formato OpenAI; serve para Groq, Gemini e outros só trocando as variáveis."""
@@ -42,8 +44,11 @@ class OpenAICompatProvider:
                 raise LLMUnavailable(str(exc)) from exc
             if resp.status_code != 429 and resp.status_code < 500:
                 break
-            if attempt < self.retries:  # limite do plano grátis: espera e tenta de novo
-                self.sleep(self._wait(resp, attempt))
+            wait = self._wait(resp, attempt)
+            if wait > MAX_WAIT_SECONDS:  # ex.: cota diária esgotada; esperar não compensa
+                break
+            if attempt < self.retries:  # limite por minuto do plano grátis: espera e tenta de novo
+                self.sleep(wait)
         if resp.status_code == 429 or resp.status_code >= 500:
             raise LLMUnavailable(f"status {resp.status_code}")
         if resp.status_code >= 400:
@@ -65,6 +70,6 @@ class OpenAICompatProvider:
     @staticmethod
     def _wait(resp: httpx.Response, attempt: int) -> float:
         try:
-            return min(float(resp.headers["retry-after"]), 30.0)
+            return float(resp.headers["retry-after"])
         except (KeyError, ValueError):
             return 2.0 * (attempt + 1)

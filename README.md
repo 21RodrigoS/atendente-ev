@@ -56,7 +56,7 @@ Veja [docs/architecture.md](docs/architecture.md). Em resumo: FastAPI, agente co
 
 - O envio real de mensagens pelo WhatsApp Cloud API ainda não está integrado (exige aprovação da Meta); o webhook já aceita o formato.
 - Os dados de demonstração (sabores, preços e clientes) são de exemplo e não há dados de clientes reais no repositório.
-- O plano grátis do provedor de LLM tem limite de requisições; a API aplica limite por IP.
+- O plano grátis do Groq limita tokens por minuto e por dia (200 mil/dia por modelo no momento da medição); uma rodada de avaliação usa uma parte relevante disso. Quando o limite estoura, o atendente responde com uma mensagem de instabilidade. A API também aplica limite por IP.
 
 ## Estrutura
 
